@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Scentara — Premium Fragrances</title>
+<title>Sweet Escape — Premium Fragrances</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
@@ -263,7 +263,7 @@
 <body>
 
 <header>
-  <div class="logo" id="shopNameHeader">Scentara</div>
+  <div class="logo" id="shopNameHeader">Sweet Escape</div>
   <nav>
     <a href="#" onclick="scrollToShop();return false;">Collection</a>
     <a href="#">About</a>
@@ -298,8 +298,8 @@
 </section>
 
 <footer>
-  <div class="footer-logo" id="shopNameFooter">Scentara</div>
-  <p id="footerTagline">Premium Fragrances · Philippines</p>
+  <div class="footer-logo" id="shopNameFooter">Sweet Escape</div>
+  <p id="footerTagline">Premium Fragrances · Pampanga</p>
 </footer>
 
 <!-- PRODUCT DETAIL MODAL -->
@@ -520,7 +520,7 @@ let cart = [];
 let currentFilter = 'All';
 let searchQuery = '';
 let editingId = null;
-let settings = { name: 'Scentara', tagline: 'Premium Fragrances · Philippines' };
+let settings = { name: 'Sweet Escape', tagline: 'Premium Fragrances · Pampanga' };
 let currentCheckoutStep = 1;
 
 // ── INIT ──
@@ -829,10 +829,49 @@ function finishCheckout() {
   showToast('Thank you for your order! 🌸', true);
 }
 
-// ── ADMIN ──
-function toggleAdmin() { document.getElementById('adminPanel').classList.toggle('open'); }
-function openAdmin() { document.getElementById('adminPanel').classList.add('open'); }
-function closeAdmin() { document.getElementById('adminPanel').classList.remove('open'); }
+// ── ADMIN AUTH ──
+// First time you click the ⚙ button, enter your chosen password — it gets saved.
+// Every visit after that requires the same password to open admin.
+// To reset: open browser console and run: localStorage.removeItem('se_admin_hash')
+let adminUnlocked = false;
+
+async function hashString(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+async function toggleAdmin() {
+  if (adminUnlocked) {
+    document.getElementById('adminPanel').classList.toggle('open');
+    return;
+  }
+  const pw = prompt('🔐 Admin password:');
+  if (!pw) return;
+  const hash = await hashString(pw);
+  const stored = localStorage.getItem('se_admin_hash');
+  if (!stored) {
+    // First time — whatever you type becomes the password
+    localStorage.setItem('se_admin_hash', hash);
+    adminUnlocked = true;
+    document.getElementById('adminPanel').classList.add('open');
+    showToast('Password set — admin unlocked ✓');
+    return;
+  }
+  if (hash === stored) {
+    adminUnlocked = true;
+    document.getElementById('adminPanel').classList.add('open');
+    showToast('Admin unlocked ✓');
+  } else {
+    showToast('Incorrect password');
+  }
+}
+
+function openAdmin() {
+  if (adminUnlocked) document.getElementById('adminPanel').classList.add('open');
+}
+function closeAdmin() {
+  document.getElementById('adminPanel').classList.remove('open');
+}
 
 function switchTab(name) {
   document.querySelectorAll('.admin-content').forEach(el => el.classList.add('hidden'));
