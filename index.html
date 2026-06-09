@@ -848,15 +848,7 @@ async function toggleAdmin() {
   const pw = prompt('🔐 Admin password:');
   if (!pw) return;
   const hash = await hashString(pw);
-  const stored = localStorage.getItem('se_admin_hash');
-  if (!stored) {
-    // First time — whatever you type becomes the password
-    localStorage.setItem('se_admin_hash', hash);
-    adminUnlocked = true;
-    document.getElementById('adminPanel').classList.add('open');
-    showToast('Password set — admin unlocked ✓');
-    return;
-  }
+  const stored = localStorage.getItem('se_admin_hash') || '897cd06eef5ed4f3b719cfc9dee01a927a033dfd38a5edea8e6b881197a06f9e';
   if (hash === stored) {
     adminUnlocked = true;
     document.getElementById('adminPanel').classList.add('open');
